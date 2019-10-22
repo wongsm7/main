@@ -1,13 +1,13 @@
 package seedu.address.logic.commands;
 
-import seedu.address.logic.commands.core.Command;
-import seedu.address.logic.commands.core.CommandResult;
+import seedu.address.logic.commands.common.Command;
+import seedu.address.logic.commands.common.CommandResult;
 import seedu.address.model.Model;
 
 /**
  * Terminates the program.
  */
-public class ExitCommand extends Command {
+public class ExitCommand implements Command {
 
     public static final String COMMAND_WORD = "exit";
 
@@ -17,5 +17,4 @@ public class ExitCommand extends Command {
     public CommandResult execute(Model model) {
         return new CommandResult(MESSAGE_EXIT_ACKNOWLEDGEMENT, false, true);
     }
-
 }

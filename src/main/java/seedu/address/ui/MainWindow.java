@@ -1,27 +1,37 @@
 package seedu.address.ui;
 
+import static seedu.address.commons.core.OmniPanelTab.PATIENTS_TAB;
+
+import java.util.function.Consumer;
 import java.util.logging.Logger;
 
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.SplitPane;
 import javafx.scene.control.TextInputControl;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+
 import seedu.address.commons.core.GuiSettings;
 import seedu.address.commons.core.LogsCenter;
+import seedu.address.commons.core.OmniPanelTab;
 import seedu.address.logic.Logic;
-import seedu.address.logic.commands.core.CommandResult;
+import seedu.address.logic.commands.common.CommandResult;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.logic.parser.exceptions.ParseException;
+import seedu.address.ui.queue.QueueListPanel;
 
 /**
  * The Main Window. Provides the basic application layout containing
  * a menu bar and space where other JavaFX elements can be placed.
  */
-public class MainWindow extends UiPart<Stage> {
+public class MainWindow extends UiPart<Stage> implements AutoComplete, OmniPanel {
 
     private static final String FXML = "MainWindow.fxml";
 
@@ -31,9 +41,17 @@ public class MainWindow extends UiPart<Stage> {
     private Logic logic;
 
     // Independent Ui parts residing in this Ui container
+    private AutoCompleteOverlay aco;
+    private CommandBox commandBox;
     private PersonListPanel personListPanel;
+    private QueueListPanel queueListPanel;
+    private EventListPanel eventListPanel;
     private ResultDisplay resultDisplay;
     private HelpWindow helpWindow;
+    private TabBar tabBar;
+
+    @FXML
+    private AnchorPane anchorPane;
 
     @FXML
     private StackPane commandBoxPlaceholder;
@@ -42,13 +60,22 @@ public class MainWindow extends UiPart<Stage> {
     private MenuItem helpMenuItem;
 
     @FXML
-    private StackPane personListPanelPlaceholder;
+    private StackPane omniPanelPlaceholder;
+
+    @FXML
+    private StackPane queueListPanelPlaceholder;
 
     @FXML
     private StackPane resultDisplayPlaceholder;
 
     @FXML
     private StackPane statusbarPlaceholder;
+
+    @FXML
+    private StackPane tabBarPlaceholder;
+
+    @FXML
+    private SplitPane upperPane;
 
     public MainWindow(Stage primaryStage, Logic logic) {
         super(FXML, primaryStage);
@@ -63,6 +90,19 @@ public class MainWindow extends UiPart<Stage> {
         setAccelerators();
 
         helpWindow = new HelpWindow();
+
+        upperPane.addEventFilter(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent event) {
+                switch (event.getCode()) {
+                case TAB:
+                    event.consume();
+                    commandBox.getRoot().requestFocus();
+                    break;
+                default:
+                }
+            }
+        });
     }
 
     public Stage getPrimaryStage() {
@@ -75,6 +115,7 @@ public class MainWindow extends UiPart<Stage> {
 
     /**
      * Sets the accelerator of a MenuItem.
+     *
      * @param keyCombination the KeyCombination value of the accelerator
      */
     private void setAccelerator(MenuItem menuItem, KeyCombination keyCombination) {
@@ -108,7 +149,15 @@ public class MainWindow extends UiPart<Stage> {
      */
     void fillInnerParts() {
         personListPanel = new PersonListPanel(logic.getFilteredPersonList());
-        personListPanelPlaceholder.getChildren().add(personListPanel.getRoot());
+
+        eventListPanel = new EventListPanel(logic.getFilteredEventList());
+
+        tabBar = new TabBar(this::setOmniPanelTab);
+        tabBarPlaceholder.getChildren().add(tabBar.getRoot());
+
+        queueListPanel = new QueueListPanel(logic.getConsultationRoomList(),
+            logic.getQueueList(), logic.getReferenceIdResolver());
+        queueListPanelPlaceholder.getChildren().add(queueListPanel.getRoot());
 
         resultDisplay = new ResultDisplay();
         resultDisplayPlaceholder.getChildren().add(resultDisplay.getRoot());
@@ -116,8 +165,12 @@ public class MainWindow extends UiPart<Stage> {
         StatusBarFooter statusBarFooter = new StatusBarFooter(logic.getAddressBookFilePath());
         statusbarPlaceholder.getChildren().add(statusBarFooter.getRoot());
 
-        CommandBox commandBox = new CommandBox(this::executeCommand);
-        commandBoxPlaceholder.getChildren().add(commandBox.getRoot());
+        commandBox = new CommandBox(this::executeCommand, this);
+        commandBoxPlaceholder.getChildren().addAll(commandBox.getRoot());
+
+        aco = new AutoCompleteOverlay(this::autoCompleterSelected);
+        anchorPane.getChildren().add(aco.getRoot());
+        anchorPane.setBottomAnchor(aco.getRoot(), 0.0);
     }
 
     /**
@@ -154,7 +207,7 @@ public class MainWindow extends UiPart<Stage> {
     @FXML
     private void handleExit() {
         GuiSettings guiSettings = new GuiSettings(primaryStage.getWidth(), primaryStage.getHeight(),
-                (int) primaryStage.getX(), (int) primaryStage.getY());
+            (int) primaryStage.getX(), (int) primaryStage.getY());
         logic.setGuiSettings(guiSettings);
         helpWindow.hide();
         primaryStage.hide();
@@ -164,14 +217,18 @@ public class MainWindow extends UiPart<Stage> {
         return personListPanel;
     }
 
+    public EventListPanel getEventListPanel() {
+        return eventListPanel;
+    }
+
     /**
      * Executes the command and returns the result.
      *
-     * @see seedu.address.logic.Logic#execute(String)
+     * @see seedu.address.logic.Logic#execute(String, Consumer)
      */
     private CommandResult executeCommand(String commandText) throws CommandException, ParseException {
         try {
-            CommandResult commandResult = logic.execute(commandText);
+            CommandResult commandResult = logic.execute(commandText, this::setOmniPanelTab);
             logger.info("Result: " + commandResult.getFeedbackToUser());
             resultDisplay.setFeedbackToUser(commandResult.getFeedbackToUser());
 
@@ -188,6 +245,66 @@ public class MainWindow extends UiPart<Stage> {
             logger.info("Invalid command: " + commandText);
             resultDisplay.setFeedbackToUser(e.getMessage());
             throw e;
+        }
+    }
+
+    /**
+     * Called whenever AutoComplete selected command.
+     */
+    public void updateCommandAutoComplete(String commandText) {
+        aco.showSuggestions(commandText, logic.updateAutoCompleter(commandText).getSuggestions());
+    }
+
+    /**
+     * Receives Key Press event from Command Box and executes expected behaviours.
+     */
+    public void updateSelectionKeyPressedCommandBox(KeyCode keyCode) {
+        switch (keyCode) {
+        case UP:
+            if (aco.isSuggesting()) {
+                aco.traverseSelection(true);
+                break;
+            }
+            break;
+        case DOWN:
+            if (aco.isSuggesting()) {
+                aco.traverseSelection(false);
+                break;
+            }
+            break;
+        case ENTER:
+            if (aco.isSuggesting()) {
+                aco.simulateMouseClick();
+                break;
+            }
+            commandBox.handleCommandEntered();
+            break;
+        default:
+        }
+    }
+
+    /**
+     * Called whenever AutoComplete has a selection.
+     */
+    private void autoCompleterSelected(String selectedText) {
+        commandBox.setCommandTextField(selectedText);
+    }
+
+    /**
+     * Sets OmniPanelTab.
+     */
+    @Override
+    public void setOmniPanelTab(OmniPanelTab omniPanelTab) {
+        switch (omniPanelTab) {
+        case PATIENTS_TAB:
+            omniPanelPlaceholder.getChildren().setAll(personListPanel.getRoot());
+            break;
+        case APPOINTMENTS_TAB:
+            omniPanelPlaceholder.getChildren().setAll(eventListPanel.getRoot());
+            break;
+        case DOCTORS_TAB:
+            break;
+        default:
         }
     }
 }

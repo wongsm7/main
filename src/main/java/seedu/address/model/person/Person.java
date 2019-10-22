@@ -1,5 +1,6 @@
 package seedu.address.model.person;
 
+import static java.util.Objects.requireNonNull;
 import static seedu.address.commons.util.CollectionUtil.requireAllNonNull;
 
 import java.util.Collections;
@@ -7,15 +8,23 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-import seedu.address.model.tag.Tag;
+import seedu.address.model.common.Identical;
+import seedu.address.model.common.ReferenceId;
+import seedu.address.model.common.Tag;
+import seedu.address.model.person.parameters.Address;
+import seedu.address.model.person.parameters.Email;
+import seedu.address.model.person.parameters.Name;
+import seedu.address.model.person.parameters.Phone;
+
 
 /**
- * Represents a Person in the address book.
+ * Represents a Person who can be either a patient or staff doctor.
  * Guarantees: details are present and not null, field values are validated, immutable.
  */
-public class Person {
+public class Person implements Identical<Person> {
 
     // Identity fields
+    private final ReferenceId referenceId;
     private final Name name;
     private final Phone phone;
     private final Email email;
@@ -27,13 +36,19 @@ public class Person {
     /**
      * Every field must be present and not null.
      */
-    public Person(Name name, Phone phone, Email email, Address address, Set<Tag> tags) {
-        requireAllNonNull(name, phone, email, address, tags);
+    public Person(ReferenceId referenceId, Name name, Phone phone, Email email,
+                  Address address, Set<Tag> tags) {
+        requireAllNonNull(referenceId, name);
+        this.referenceId = referenceId;
         this.name = name;
         this.phone = phone;
         this.email = email;
         this.address = address;
         this.tags.addAll(tags);
+    }
+
+    public ReferenceId getReferenceId() {
+        return referenceId;
     }
 
     public Name getName() {
@@ -61,17 +76,26 @@ public class Person {
     }
 
     /**
-     * Returns true if both persons of the same name have at least one other identity field that is the same.
+     * Returns true if both persons of the same reference id and name.
      * This defines a weaker notion of equality between two persons.
      */
-    public boolean isSamePerson(Person otherPerson) {
-        if (otherPerson == this) {
-            return true;
-        }
+    public boolean isSameAs(ReferenceId id) {
+        return getReferenceId().equals(id);
+    }
 
-        return otherPerson != null
-                && otherPerson.getName().equals(getName())
-                && (otherPerson.getPhone().equals(getPhone()) || otherPerson.getEmail().equals(getEmail()));
+    /**
+     * Returns true if both persons of the same reference id and name.
+     * This defines a weaker notion of equality between two persons.
+     */
+    @Override
+    public boolean isSameAs(Person otherPerson) {
+        return otherPerson == this || (otherPerson != null && isSameAs(otherPerson.getReferenceId()));
+    }
+
+    @Override
+    public int compareTo(Person o) {
+        requireNonNull(o);
+        return getReferenceId().compareTo(o.getReferenceId());
     }
 
     /**
@@ -89,7 +113,8 @@ public class Person {
         }
 
         Person otherPerson = (Person) other;
-        return otherPerson.getName().equals(getName())
+        return otherPerson.getReferenceId().equals(getReferenceId())
+                && otherPerson.getName().equals(getName())
                 && otherPerson.getPhone().equals(getPhone())
                 && otherPerson.getEmail().equals(getEmail())
                 && otherPerson.getAddress().equals(getAddress())
@@ -105,7 +130,9 @@ public class Person {
     @Override
     public String toString() {
         final StringBuilder builder = new StringBuilder();
-        builder.append(getName())
+        builder.append(getReferenceId())
+                .append(" Name: ")
+                .append(getName())
                 .append(" Phone: ")
                 .append(getPhone())
                 .append(" Email: ")

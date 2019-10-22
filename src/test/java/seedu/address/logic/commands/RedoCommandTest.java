@@ -2,18 +2,16 @@ package seedu.address.logic.commands;
 
 import static seedu.address.logic.commands.CommandTestUtil.assertCommandFailure;
 import static seedu.address.logic.commands.CommandTestUtil.assertCommandSuccess;
-import static seedu.address.testutil.TypicalPersons.getTypicalAddressBook;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import seedu.address.logic.commands.core.CommandHistory;
-import seedu.address.logic.commands.core.CommandResult;
-import seedu.address.logic.commands.core.UndoableCommandStub;
+import seedu.address.logic.commands.common.CommandHistory;
+import seedu.address.logic.commands.common.CommandResult;
 import seedu.address.logic.commands.exceptions.CommandException;
+import seedu.address.logic.commands.utils.ReversibleActionPairCommandStub;
 import seedu.address.model.Model;
-import seedu.address.model.ModelManager;
-import seedu.address.model.UserPrefs;
+import seedu.address.testutil.TestUtil;
 
 /**
  * Contains integration tests (interaction with the Model and CommandHistory) and unit tests for RedoCommand.
@@ -24,15 +22,15 @@ class RedoCommandTest {
     public void execute_performRedo_success() {
 
         CommandHistory history = new CommandHistory();
-        Model model = new ModelManager(getTypicalAddressBook(), new UserPrefs());
-        Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
+        Model model = TestUtil.getTypicalModelManager();
+        Model expectedModel = TestUtil.getTypicalModelManager();
 
         RedoCommand redoCommand = new RedoCommand(history);
-        assertCommandFailure(redoCommand, model, RedoCommand.MESSAGE_NO_REDO_HISTORY_ERROR);
+        assertCommandFailure(redoCommand, model, CommandHistory.MESSAGE_NO_REDO_HISTORY_ERROR);
 
         String commandResultMessage = "cmd 1";
-        history.addToCommandHistory(new UndoableCommandStub(commandResultMessage));
-        assertCommandFailure(redoCommand, model, RedoCommand.MESSAGE_NO_REDO_HISTORY_ERROR);
+        history.addToCommandHistory(new ReversibleActionPairCommandStub(commandResultMessage));
+        assertCommandFailure(redoCommand, model, CommandHistory.MESSAGE_NO_REDO_HISTORY_ERROR);
 
         try {
             Assertions.assertTrue(history.performUndo(model).equals(new CommandResult(commandResultMessage)));
@@ -42,7 +40,7 @@ class RedoCommandTest {
             throw new AssertionError("Execution of command should not fail.", ce);
         }
 
-        assertCommandFailure(redoCommand, model, RedoCommand.MESSAGE_NO_REDO_HISTORY_ERROR);
+        assertCommandFailure(redoCommand, model, CommandHistory.MESSAGE_NO_REDO_HISTORY_ERROR);
     }
 
     @Test
