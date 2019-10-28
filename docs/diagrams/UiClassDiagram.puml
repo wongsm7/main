@@ -15,8 +15,6 @@ Class PersonListPanel
 Class PersonCard
 Class StatusBarFooter
 Class CommandBox
-Class AutoCompleteOverlay
-Class TabBar
 }
 
 package Model <<Rectangle>> {
@@ -30,29 +28,24 @@ Class HiddenLogic #FFFFFF
 Class HiddenOutside #FFFFFF
 HiddenOutside ..> Ui
 
-UiManager .|> Ui
-UiManager --> MainWindow
+UiManager .left.|> Ui
+UiManager -down-> MainWindow
 MainWindow --> HelpWindow
 MainWindow *-down-> CommandBox
 MainWindow *-down-> ResultDisplay
 MainWindow *-down-> PersonListPanel
 MainWindow *-down-> StatusBarFooter
-MainWindow *-down-> AutoCompleteOverlay
-MainWindow *-down-> TabBar
-
 
 PersonListPanel -down-> PersonCard
 
-MainWindow --|> UiPart
+MainWindow -left-|> UiPart
 
 ResultDisplay --|> UiPart
 CommandBox --|> UiPart
 PersonListPanel --|> UiPart
-PersonCard -right-|> UiPart
+PersonCard --|> UiPart
 StatusBarFooter --|> UiPart
-HelpWindow --|> UiPart
-AutoCompleteOverlay --|> UiPart
-TabBar -right-|> UiPart
+HelpWindow -down-|> UiPart
 
 PersonCard ..> Model
 UiManager -right-> Logic

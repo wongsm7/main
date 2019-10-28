@@ -10,9 +10,4 @@ public class OmniPanelStub implements OmniPanel {
     public void setOmniPanelTab(OmniPanelTab omniPanelTab) {
 
     }
-
-    @Override
-    public void regainOmniPanelSelector() {
-
-    }
 }

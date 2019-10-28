@@ -1,4 +1,4 @@
-package seedu.address.ui.autocomplete;
+package seedu.address.logic.autocomplete;
 
 import java.util.ArrayList;
 import java.util.Collections;

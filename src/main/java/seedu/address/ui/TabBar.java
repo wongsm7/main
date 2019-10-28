@@ -46,9 +46,6 @@ public class TabBar extends UiPart<Region> {
                     selectedIndex = (size + selectedIndex + 1) % size;
                     keyEvent.consume();
                     break;
-                case RIGHT:
-                    omniPanel.regainOmniPanelSelector();
-                    break;
                 default:
                 }
                 Node selectedNode = ols.get(selectedIndex);

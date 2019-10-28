@@ -8,6 +8,4 @@ import seedu.address.commons.core.OmniPanelTab;
 public interface OmniPanel {
 
     void setOmniPanelTab(OmniPanelTab omniPanelTab);
-
-    void regainOmniPanelSelector();
 }

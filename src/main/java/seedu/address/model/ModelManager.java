@@ -347,13 +347,6 @@ public class ModelManager implements Model {
     }
 
     @Override
-    public void updateToSettleEventList() {
-        updateFilteredEventList(PREDICATE_SHOW_ALL_EVENTS);
-        Predicate<Event> bySettled = Event -> (Event.getStatus().isSettled());
-        filteredEvents.setPredicate(bySettled);
-    }
-
-    @Override
     public Boolean isMissedList() {
         requireNonNull(filteredEvents);
         boolean res = true;

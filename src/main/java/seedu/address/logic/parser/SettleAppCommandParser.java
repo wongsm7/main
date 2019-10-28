@@ -1,6 +1,7 @@
 package seedu.address.logic.parser;
 
 import static java.util.Objects.requireNonNull;
+import static seedu.address.commons.core.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
 
 import java.util.List;
 
@@ -28,7 +29,6 @@ public class SettleAppCommandParser implements Parser<ReversibleActionPairComman
         this.lastShownList = model.getFilteredEventList();
         this.model = model;
     }
-
     /**
      * Parses the given {@code String} of arguments in the context of the ReversibleActionPairCommand
      * and returns a ReversibleActionPairCommand object for execution.
@@ -45,27 +45,21 @@ public class SettleAppCommandParser implements Parser<ReversibleActionPairComman
         }
 
         try {
-            if (lastShownList.size() == 0) {
-                throw new ParseException(Messages.MESSAGE_NOTHING_SETTLE + "\n"
-                        + "No need: " + "settleappt " + args);
-            }
-
             Index index = ParserUtil.parseIndex(argMultimap.getPreamble());
             int idx = index.getZeroBased();
-
             if (idx >= lastShownList.size()) {
                 throw new ParseException(Messages.MESSAGE_INVALID_INDEX);
             }
-
-            Event eventToEdit = lastShownList.get(idx);
-            Event editedEvent = new Appointment(eventToEdit.getPersonId(), eventToEdit.getEventTiming(),
+            Event source = lastShownList.get(idx);
+            Event dest = new Appointment(source.getPersonId(), source.getEventTiming(),
                     new Status(Status.AppointmentStatuses.SETTLED));
 
-            return new ReversibleActionPairCommand(new SettleAppCommand(eventToEdit, editedEvent),
-                    new SettleAppCommand(editedEvent, eventToEdit));
+            return new ReversibleActionPairCommand(new SettleAppCommand(source, dest),
+                    new SettleAppCommand(dest, source));
 
         } catch (ParseException e) {
-            throw new ParseException(e.getMessage());
+            throw new ParseException(
+                    String.format(MESSAGE_INVALID_COMMAND_FORMAT, SettleAppCommand.MESSAGE_USAGE), e);
         }
     }
 }

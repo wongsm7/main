@@ -7,6 +7,7 @@ import javafx.collections.ObservableList;
 
 import seedu.address.commons.core.GuiSettings;
 import seedu.address.commons.core.OmniPanelTab;
+import seedu.address.logic.autocomplete.AutoCompleter;
 import seedu.address.logic.commands.common.CommandResult;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.logic.parser.exceptions.ParseException;
@@ -43,6 +44,13 @@ public interface Logic {
      * Returns an unmodifiable view of the filtered list of events
      */
     ObservableList<Event> getFilteredEventList();
+
+    /**
+     * Updates AutoComplete to the current command text.
+     *
+     * @param commandText The command as entered by the user.
+     */
+    AutoCompleter updateAutoCompleter(String commandText);
 
     /**
      * Returns the AddressBook.

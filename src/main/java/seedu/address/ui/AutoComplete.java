@@ -16,4 +16,5 @@ public interface AutoComplete {
      * Called whenever keyPressed on AutoComplete.
      */
     void updateSelectionKeyPressedCommandBox(KeyCode keycode);
+
 }

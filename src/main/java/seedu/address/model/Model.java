@@ -243,8 +243,6 @@ public interface Model extends ReferenceIdResolver {
 
     void updateToMissedEventList();
 
-    void updateToSettleEventList();
-
     void displayApprovedAndAckedPatientEvent(ReferenceId referenceId);
 
     public Boolean isPatientList();
