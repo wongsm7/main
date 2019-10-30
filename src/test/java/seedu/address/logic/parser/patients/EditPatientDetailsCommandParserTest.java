@@ -43,7 +43,7 @@ import seedu.address.commons.core.index.Index;
 import seedu.address.logic.commands.common.ReversibleActionPairCommand;
 import seedu.address.logic.commands.patients.EditPatientDetailsCommand;
 import seedu.address.model.Model;
-import seedu.address.model.common.Tag;
+import seedu.address.model.person.parameters.Tag;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.parameters.Email;
 import seedu.address.model.person.parameters.Name;
