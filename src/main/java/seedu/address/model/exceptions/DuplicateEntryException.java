@@ -1,3 +1,4 @@
+//@@author SakuraBlossom
 package seedu.address.model.exceptions;
 
 /**
@@ -6,6 +7,6 @@ package seedu.address.model.exceptions;
  */
 public class DuplicateEntryException extends RuntimeException {
     public DuplicateEntryException() {
-        super("Operation would result in duplicate persons");
+        super("Operation would result in duplicate entries");
     }
 }

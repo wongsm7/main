@@ -1,3 +1,4 @@
+//@@author SakuraBlossom
 package seedu.address.model.events;
 
 import static java.util.Objects.requireNonNull;
@@ -5,8 +6,11 @@ import static seedu.address.commons.util.CollectionUtil.requireAllNonNull;
 
 import java.util.Objects;
 
+import seedu.address.model.ReferenceId;
 import seedu.address.model.common.Identical;
-import seedu.address.model.common.ReferenceId;
+import seedu.address.model.events.parameters.Status;
+import seedu.address.model.events.parameters.Timing;
+import seedu.address.model.person.parameters.Name;
 
 /**
  * Represents an event involving a single Person.
@@ -16,28 +20,34 @@ public class Event implements Identical<Event> {
 
     // Identity fields
     private final ReferenceId personId;
+    private final Name personName;
     private final Timing timing;
     private Status status;
 
     /**
      * Every field must be present and not null.
      */
-    public Event(ReferenceId personId, Timing timing, Status status) {
-        requireAllNonNull(personId, timing, status);
+    public Event(ReferenceId personId, Name personName, Timing timing, Status status) {
+        requireAllNonNull(personId, personName, timing, status);
 
         this.personId = personId;
+        this.personName = personName;
         this.timing = timing;
 
-
-        if (!status.equals(new Status(Status.AppointmentStatuses.SETTLED)) && timing.hasMissedTiming()) {
+        if (!status.equals(Status.AppointmentStatuses.SETTLED) && timing.hasMissedTiming()) {
             this.status = new Status(Status.AppointmentStatuses.MISSED);
         } else {
             this.status = status;
         }
     }
 
+
     public ReferenceId getPersonId() {
         return personId;
+    }
+
+    public Name getPersonName() {
+        return personName;
     }
 
     public Timing getEventTiming() {
@@ -52,7 +62,6 @@ public class Event implements Identical<Event> {
         return getEventTiming().conflictsWith(otherEvent.getEventTiming());
     }
 
-
     /**
      * Returns true if both Event of the same patient and timing.
      * This defines a weaker notion of equality between two events.
@@ -64,8 +73,8 @@ public class Event implements Identical<Event> {
 
         return otherEvent != null
                 && otherEvent.getPersonId().equals(getPersonId())
-                && otherEvent.getEventTiming().equals(getEventTiming())
-                && otherEvent.getStatus().equals(status);
+                && otherEvent.getPersonName().equals(getPersonName())
+                && otherEvent.getEventTiming().equals(getEventTiming());
     }
 
     /**
@@ -84,7 +93,9 @@ public class Event implements Identical<Event> {
 
         Event otherEvent = (Event) other;
         return otherEvent.getPersonId().equals(getPersonId())
-                && otherEvent.getEventTiming().equals(getEventTiming());
+                && otherEvent.getPersonName().equals(getPersonName())
+                && otherEvent.getEventTiming().equals(getEventTiming())
+                && otherEvent.getStatus().equals(status);
     }
 
     @Override
@@ -109,6 +120,8 @@ public class Event implements Identical<Event> {
         final StringBuilder builder = new StringBuilder();
         builder.append("Event - Person ID: ")
                 .append(getPersonId())
+                .append(" Name: ")
+                .append(getPersonName())
                 .append(" Timing: ")
                 .append(getEventTiming())
                 .append(" status: ")
