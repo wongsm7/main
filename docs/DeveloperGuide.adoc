@@ -359,7 +359,7 @@ The `appointments` command searches for appointments that were belong to the pat
 
 Case 2: `appointments`
 
-The appointments behaves similarly to appointments with the exception that it does not take in any arguments. Instead, it automatically executes with the predicate EventContainsApprovedStatusPredicate. updateFilteredAppointmentList() is called and the entire list of upcoming appointments is shown to the user.
+The appointments behaves similarly to appointments with the exception that it does not take in any arguments. Instead, it automatically executes with the predicate `EventContainsApprovedStatusPredicate`. `updateFilteredAppointmentList()` is called and the entire list of upcoming appointments is shown to the user.
 
 ==== `changeappt` Command
 The following activity diagram summarizes what happens when a user executes a ChangeAppointment command:
@@ -379,7 +379,7 @@ image::CancelAppointmentSequenceDiagram.png[]
 
 ==== `missappt` Command
 
-The `missAppointment` command displays the miseed appointments. The missed appointments are found in `ModelManager`. The list is instantiated by filtering the `UniqueAppointmentList` using `EventsMissedPredicate` which checks all `APPROVED`-Status appointments ending times with current time.
+The `missAppointment` command displays the missed appointments. The missed appointments are found in `ModelManager`. The list is instantiated by filtering the `UniqueAppointmentList` using `EventsMissedPredicate` which checks all `APPROVED`-Status appointments ending times with current time.
 
 ==== `settleappt` Command
 
@@ -391,12 +391,12 @@ In future implementations, i.e. v2.0, the valid timing slot will be given after 
 
 ===== Aspect:  How to store Timing fields
 
-* **Alternative 1 (current choice):** Create DateTime and Timing class to store
+* **Alternative 1 (current choice):** Create `DateTime` and `Timing` class to store
 ** Pros: Makes it easier to calculate timings and clashes between multiple appointments with different timing field.
-** Cons: Requires additional code to implement Timing class and interact with other common methods that rely on DateTime.
+** Cons: Requires additional code to implement `Timing` class and interact with other common methods that rely on `DateTime`.
 * **Alternative 2:** Store as Strings
 ** Pros: Makes it easier to implement.
-** Cons: Requires additional code to convert into DateTIme class when carrying out calculating methods.
+** Cons: Requires additional code to convert into `DateTIme` class when carrying out calculating methods.
 
 ===== Aspect: display appointments
 
